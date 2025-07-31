@@ -169,6 +169,11 @@ output "nat_gateway_private_ips" {
   value       = var.create_vpc && var.enable_nat_gateway ? aws_nat_gateway.main[*].private_ip : []
 }
 
+output "nat_gateway_connectivity_types" {
+  description = "List of connectivity types of NAT Gateways"
+  value       = var.create_vpc && var.enable_nat_gateway ? aws_nat_gateway.main[*].connectivity_type : []
+}
+
 output "nat_eip_ids" {
   description = "List of Elastic IP IDs for NAT Gateways"
   value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].id : []
@@ -177,6 +182,26 @@ output "nat_eip_ids" {
 output "nat_eip_public_ips" {
   description = "List of Elastic IP public IPs for NAT Gateways"
   value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].public_ip : []
+}
+
+output "nat_eip_allocation_ids" {
+  description = "List of Elastic IP allocation IDs for NAT Gateways"
+  value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].allocation_id : []
+}
+
+output "nat_eip_network_border_groups" {
+  description = "List of Elastic IP network border groups for NAT Gateways"
+  value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].network_border_group : []
+}
+
+output "nat_eip_carrier_ips" {
+  description = "List of Elastic IP carrier IPs for NAT Gateways"
+  value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].carrier_ip : []
+}
+
+output "nat_eip_customer_owned_ips" {
+  description = "List of Elastic IP customer owned IPs for NAT Gateways"
+  value       = var.create_vpc && var.enable_nat_gateway ? aws_eip.nat[*].customer_owned_ip : []
 }
 
 # =============================================================================
@@ -193,6 +218,11 @@ output "public_route_table_arn" {
   value       = var.create_vpc ? aws_route_table.public[0].arn : null
 }
 
+output "public_route_table_owner_id" {
+  description = "Owner ID of public route table"
+  value       = var.create_vpc ? aws_route_table.public[0].owner_id : null
+}
+
 output "private_route_table_ids" {
   description = "List of IDs of private route tables"
   value       = var.create_vpc ? aws_route_table.private[*].id : []
@@ -203,6 +233,11 @@ output "private_route_table_arns" {
   value       = var.create_vpc ? aws_route_table.private[*].arn : []
 }
 
+output "private_route_table_owner_ids" {
+  description = "List of owner IDs of private route tables"
+  value       = var.create_vpc ? aws_route_table.private[*].owner_id : []
+}
+
 output "database_route_table_ids" {
   description = "List of IDs of database route tables"
   value       = var.create_vpc && length(var.database_subnets) > 0 ? aws_route_table.database[*].id : []
@@ -211,6 +246,26 @@ output "database_route_table_ids" {
 output "database_route_table_arns" {
   description = "List of ARNs of database route tables"
   value       = var.create_vpc && length(var.database_subnets) > 0 ? aws_route_table.database[*].arn : []
+}
+
+output "database_route_table_owner_ids" {
+  description = "List of owner IDs of database route tables"
+  value       = var.create_vpc && length(var.database_subnets) > 0 ? aws_route_table.database[*].owner_id : []
+}
+
+output "public_additional_route_ids" {
+  description = "List of IDs of additional public routes"
+  value       = var.create_vpc ? [for route in aws_route.public_additional : route.id] : []
+}
+
+output "private_additional_route_ids" {
+  description = "List of IDs of additional private routes"
+  value       = var.create_vpc ? [for route in aws_route.private_additional : route.id] : []
+}
+
+output "database_additional_route_ids" {
+  description = "List of IDs of additional database routes"
+  value       = var.create_vpc && length(var.database_subnets) > 0 ? [for route in aws_route.database_additional : route.id] : []
 }
 
 # =============================================================================
@@ -369,4 +424,66 @@ output "transit_gateway_summary" {
     route_table_count           = var.create_tgw_route_tables ? length(aws_ec2_transit_gateway_route_table.main) : 0
     vpc_attachment_count        = var.create_vpc ? 1 : 0
   } : null
+}
+
+# =============================================================================
+# Network ACL Outputs
+# =============================================================================
+
+output "public_network_acl_id" {
+  description = "The ID of the public Network ACL"
+  value       = var.create_vpc && var.create_network_acls ? aws_network_acl.public[0].id : null
+}
+
+output "public_network_acl_arn" {
+  description = "The ARN of the public Network ACL"
+  value       = var.create_vpc && var.create_network_acls ? aws_network_acl.public[0].arn : null
+}
+
+output "private_network_acl_id" {
+  description = "The ID of the private Network ACL"
+  value       = var.create_vpc && var.create_network_acls ? aws_network_acl.private[0].id : null
+}
+
+output "private_network_acl_arn" {
+  description = "The ARN of the private Network ACL"
+  value       = var.create_vpc && var.create_network_acls ? aws_network_acl.private[0].arn : null
+}
+
+# =============================================================================
+# DHCP Options Outputs
+# =============================================================================
+
+output "dhcp_options_id" {
+  description = "The ID of the DHCP Options"
+  value       = var.create_vpc && var.create_dhcp_options ? aws_vpc_dhcp_options.main[0].id : null
+}
+
+output "dhcp_options_arn" {
+  description = "The ARN of the DHCP Options"
+  value       = var.create_vpc && var.create_dhcp_options ? aws_vpc_dhcp_options.main[0].arn : null
+}
+
+# =============================================================================
+# Flow Logs Outputs
+# =============================================================================
+
+output "flow_log_id" {
+  description = "The ID of the VPC Flow Log"
+  value       = var.create_vpc && var.create_flow_logs ? aws_flow_log.main[0].id : null
+}
+
+output "flow_log_arn" {
+  description = "The ARN of the VPC Flow Log"
+  value       = var.create_vpc && var.create_flow_logs ? aws_flow_log.main[0].arn : null
+}
+
+output "flow_log_cloudwatch_log_group_arn" {
+  description = "The ARN of the CloudWatch Log Group for Flow Logs"
+  value       = var.create_vpc && var.create_flow_logs && var.flow_log_destination_type == "cloud-watch-logs" ? aws_cloudwatch_log_group.flow_logs[0].arn : null
+}
+
+output "flow_log_iam_role_arn" {
+  description = "The ARN of the IAM Role for Flow Logs"
+  value       = var.create_vpc && var.create_flow_logs ? aws_iam_role.flow_logs[0].arn : null
 } 
